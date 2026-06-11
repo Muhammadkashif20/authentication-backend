@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 import sendResponse from "../Helpers/sendResponse.js";
-import Users from "../models/Users.js";
+import Users from "../models/User.js";
 const registerSchema = Joi.object({
   email: Joi.string().email().required(),
   fullname: Joi.string().min(3).required(),
