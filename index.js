@@ -4,7 +4,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import dns from "dns";
 dns.setServers(["1.1.1.1", "8.8.8.8"])
-import authRouter from "./routers/auth.js";
+// import authRouter from "./routers/auth.js";
+import authRouterTwo from "./routers/authTwo.js";
 dotenv.config();
 import Chalk from "chalk";
 const app = express();
@@ -19,7 +20,8 @@ mongoose
   .catch((err) => {
     console.log("Error connecting to MongoDB:", err);
   });
-app.use("/api/auth", authRouter)
+// app.use("/api", authRouter)
+app.use("/api", authRouterTwo)
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
