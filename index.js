@@ -4,8 +4,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import dns from "dns";
 dns.setServers(["1.1.1.1", "8.8.8.8"])
-import authRouter from "./routers/auth.js";
-import userRouter from "./routers/user.js";
+import usersRouter from "./routers/users.js";
+// import userRouter from "./routers/user.js";
 dotenv.config();
 import Chalk from "chalk";
 const app = express();
@@ -20,8 +20,8 @@ mongoose
   });
 app.use(cors());
 app.use(express.json())
-// app.use("/api",authRouter)
-app.use("/user", userRouter)
+app.use("/users",usersRouter)
+// app.use("/user", userRouter)
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
