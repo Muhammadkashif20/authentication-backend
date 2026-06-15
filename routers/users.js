@@ -37,28 +37,52 @@ router.post("/register", async (req, res) => {
 
     } catch (error) {
         console.log("error=>", error)
-        sendResponse(res, 500, false, value, "Server Error");
+        sendResponse(res, 500, false, error.details, "Server Error");
     }
 });
 
 // login API
 router.post("/login", async (req, res) => {
-    const { error, value } = login.validate(req.body)
-    console.log("value=>", value)
+    const { error, value } = login.validate(req.body);
+    console.log("req.body=>", req.body);
+    // console.log("error=> ", error);
     try {
-        if (error) return sendResponse(res, 400, false, error.details, "invalid Credentials");
-        const user = await Users.findOne({ email: value.email });
-        console.log("User_Email=>", user);
-        if (!user) return sendResponse(res, 400, false, null, "User is not Register");
+        if (error) return sendResponse(res, 400, true, null, "Invalid Credentials");
+        const user = await Users.findOne({ email: value.email })
+        console.log("User=>", user);
+
+        if (!user)
+            return sendResponse(res, 400, true, null, "User is Not Registered");
         const isMatch = await bcrypt.compare(value.password, user.password);
         console.log("isMatch=>", isMatch);
-        if (!isMatch) return sendResponse(res, 400, true, null, "Incorrect password");
-        let token=jwt.sign(user,process.env.AUTH_SECRET)
-        sendResponse(res, 200, true, {user,token}, "User Logged in Successfully");
-    }
-    catch (error) {
-        console.log("error=>", error)
-        sendResponse(res, 500, false, value, "Server Error");
+        console.log("value.password=>", value.password);
+        console.log("user.password=>", user.password);
+        console.log("user.role=>", user.role);
+        if (!isMatch)
+            return sendResponse(res, 400, true, null, "Incorrect password");
+        let token = jwt.sign(
+            {
+                id: user._id,
+                email: user.email,
+                role: user.role
+            },
+            process.env.AUTH_SECRET
+        )
+        const safeUser = {
+            id: user._id,
+            fullname: user.fullname,
+            email: user.email,
+            role: user.role
+        };
+        sendResponse(
+            res,
+            200,
+            false,
+            { user:safeUser, token },
+            "User Logged In Successfully",
+        );
+    } catch (error) {
+        console.log("Error=>", error);
     }
 });
 
