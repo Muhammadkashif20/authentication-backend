@@ -5,10 +5,10 @@ import Joi from "joi"
 import sendResponse from "../Helpers/sendResponse.js";
 import Users from '../models/User.js';
 import bcrypt from 'bcrypt';
-import jwt  from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 // Validation Register Schema
 const signUp = Joi.object({
-    "fullname": Joi.string().min(6).required(),
+    "fullname": Joi.string().required(),
     "email": Joi.string().email().required(),
     "password": Joi.string().min(6).required(),
 })
@@ -22,7 +22,12 @@ router.post("/register", async (req, res) => {
     try {
         const { error, value } = signUp.validate(req.body);
         console.log("value=>", value)
-        if (error) return sendResponse(res, 400, false, error.details, "invalid Credentials");
+        if (error) {
+            return res.status(400).json({
+                err: true,
+                msg: error.details[0].message,
+            });
+        }
         const user = await Users.findOne({ email: value.email });
 
         console.log("User_Email=>", user);
@@ -47,7 +52,12 @@ router.post("/login", async (req, res) => {
     console.log("req.body=>", req.body);
     // console.log("error=> ", error);
     try {
-        if (error) return sendResponse(res, 400, true, null, "Invalid Credentials");
+        if (error) {
+            return res.status(400).json({
+                err: true,
+                msg: error.details[0].message,
+            });
+        }
         const user = await Users.findOne({ email: value.email })
         console.log("User=>", user);
 
@@ -68,6 +78,7 @@ router.post("/login", async (req, res) => {
             },
             process.env.AUTH_SECRET
         )
+
         const safeUser = {
             id: user._id,
             fullname: user.fullname,
@@ -78,7 +89,7 @@ router.post("/login", async (req, res) => {
             res,
             200,
             false,
-            { user:safeUser, token },
+            { user: safeUser, token },
             "User Logged In Successfully",
         );
     } catch (error) {
